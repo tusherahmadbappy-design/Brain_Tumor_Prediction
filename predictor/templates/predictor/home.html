@@ -1,0 +1,89 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}
+BrainGAN-SRNet | Home
+{% endblock %}
+
+
+{% block content %}
+
+<section class="hero">
+
+    <div class="container">
+
+        <span class="badge">
+            Explainable Artificial Intelligence
+        </span>
+
+        <h1>
+            Brain Tumor Classification
+            with Explainable AI
+        </h1>
+
+        <p>
+            BrainGAN-SRNet analyzes brain MRI images
+            and provides three-class tumor classification
+            together with Grad-CAM model-attention
+            visualization.
+        </p>
+
+        <a href="{% url 'predict' %}"
+           class="primary-button">
+
+            Analyze Brain MRI
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="features">
+
+    <div class="container">
+
+        <h2>BrainGAN-SRNet Framework</h2>
+
+        <div class="feature-grid">
+
+            <div class="feature-card">
+                <h3>AC-GAN</h3>
+
+                <p>
+                    Class-conditional synthetic image
+                    augmentation is used during model
+                    development to improve minority-class
+                    representation.
+                </p>
+            </div>
+
+
+            <div class="feature-card">
+                <h3>ResNet50</h3>
+
+                <p>
+                    Transfer-learning-based classification
+                    predicts Glioma, Meningioma, or
+                    Pituitary tumor.
+                </p>
+            </div>
+
+
+            <div class="feature-card">
+                <h3>Grad-CAM XAI</h3>
+
+                <p>
+                    Grad-CAM provides a visual explanation
+                    of image regions influencing the
+                    model prediction.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

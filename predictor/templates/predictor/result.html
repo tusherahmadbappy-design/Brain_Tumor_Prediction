@@ -1,0 +1,156 @@
+{% extends "predictor/base.html" %}
+
+
+{% block title %}
+Analysis Result | BrainGAN-SRNet
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-section">
+
+<div class="container">
+
+    <div class="page-header">
+
+        <span class="badge">
+            Analysis Complete
+        </span>
+
+        <h1>
+            Brain MRI Analysis Result
+        </h1>
+
+    </div>
+
+
+    <div class="prediction-card">
+
+        <p class="small-label">
+            PREDICTED CLASS
+        </p>
+
+        <h2 class="prediction-name">
+            {{ predicted_class }}
+        </h2>
+
+        <p class="confidence">
+            Confidence: {{ confidence }}%
+        </p>
+
+        <p class="analysis-id">
+            Analysis ID: {{ prediction_id }}
+        </p>
+
+    </div>
+
+
+    <h2 class="section-title">
+        Explainable AI Visualization
+    </h2>
+
+
+    <div class="image-grid">
+
+
+        <div class="image-card">
+
+            <h3>Original MRI</h3>
+
+            <img
+                src="data:image/png;base64,{{ original_image }}"
+                alt="Original Brain MRI">
+
+        </div>
+
+
+        <div class="image-card">
+
+            <h3>Grad-CAM Explanation</h3>
+
+            <img
+                src="data:image/png;base64,{{ gradcam_image }}"
+                alt="Grad-CAM explanation">
+
+            <p class="image-description">
+                Highlighted regions represent areas
+                that influenced the model's prediction.
+            </p>
+
+        </div>
+
+
+    </div>
+
+
+    <div class="probability-card">
+
+        <h2>
+            Class Probabilities
+        </h2>
+
+
+        {% for class_name, probability in probabilities.items %}
+
+        <div class="probability-row">
+
+            <div class="probability-header">
+
+                <span>
+                    {{ class_name }}
+                </span>
+
+                <span>
+                    {{ probability }}%
+                </span>
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-value"
+                    style="width: {{ probability }}%;">
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div class="notice">
+
+        <strong>Important</strong>
+
+        <p>
+            Grad-CAM visualizes image regions that
+            contributed to the model's classification.
+            It should not be interpreted as a
+            clinically validated tumor segmentation.
+        </p>
+
+    </div>
+
+
+    <div class="center">
+
+        <a href="{% url 'predict' %}"
+           class="primary-button">
+
+            Analyze Another MRI
+
+        </a>
+
+    </div>
+
+</div>
+
+</section>
+
+{% endblock %}

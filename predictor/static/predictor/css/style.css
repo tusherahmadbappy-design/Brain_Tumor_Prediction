@@ -1,0 +1,399 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f8fc;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+.container {
+    width: 90%;
+    max-width: 1150px;
+    margin: auto;
+}
+
+
+/* NAVBAR */
+
+.navbar {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 18px 0;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #123c69;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #475569;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: #2563eb;
+}
+
+
+/* HERO */
+
+.hero {
+    padding: 110px 0;
+    text-align: center;
+    background:
+        linear-gradient(
+            135deg,
+            #eef6ff,
+            #f8fbff
+        );
+}
+
+.hero h1 {
+    max-width: 850px;
+    margin: 20px auto;
+    font-size: 50px;
+    line-height: 1.15;
+    color: #0f2942;
+}
+
+.hero p {
+    max-width: 750px;
+    margin: 0 auto 35px;
+    color: #64748b;
+    font-size: 18px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 7px 15px;
+    background: #e0edff;
+    color: #1d4ed8;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* BUTTON */
+
+.primary-button {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.primary-button:hover {
+    background: #1d4ed8;
+}
+
+.full-button {
+    width: 100%;
+    margin-top: 20px;
+}
+
+
+/* FEATURES */
+
+.features {
+    padding: 80px 0;
+}
+
+.features h2 {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(3, 1fr);
+    gap: 25px;
+}
+
+.feature-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.feature-card h3 {
+    color: #123c69;
+    margin-bottom: 12px;
+}
+
+
+/* PAGE */
+
+.page-section {
+    padding: 70px 0;
+    min-height: 75vh;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    margin: 15px 0 10px;
+    font-size: 38px;
+    color: #0f2942;
+}
+
+
+/* UPLOAD */
+
+.upload-card {
+    max-width: 650px;
+    margin: auto;
+    background: white;
+    padding: 35px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+}
+
+.upload-area {
+    padding: 50px 30px;
+    text-align: center;
+    border: 2px dashed #b8c7db;
+    border-radius: 12px;
+}
+
+.upload-icon {
+    font-size: 40px;
+    color: #2563eb;
+}
+
+.upload-area h3 {
+    margin: 10px 0;
+}
+
+.upload-area input {
+    margin-top: 20px;
+}
+
+
+/* RESULT */
+
+.prediction-card {
+    max-width: 650px;
+    margin: 0 auto 50px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 35px;
+    text-align: center;
+}
+
+.small-label {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #64748b;
+}
+
+.prediction-name {
+    margin: 8px 0;
+    font-size: 36px;
+    color: #123c69;
+}
+
+.confidence {
+    font-size: 18px;
+    color: #475569;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+
+/* IMAGES */
+
+.image-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.image-card {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.image-card h3 {
+    margin-bottom: 20px;
+}
+
+.image-card img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+}
+
+.image-description {
+    margin-top: 15px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* PROBABILITIES */
+
+.probability-card {
+    max-width: 750px;
+    margin: 30px auto;
+    padding: 35px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+}
+
+.probability-card h2 {
+    margin-bottom: 25px;
+}
+
+.probability-row {
+    margin-bottom: 22px;
+}
+
+.probability-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 7px;
+}
+
+.progress {
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-value {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 20px;
+}
+
+
+/* NOTICE */
+
+.notice {
+    max-width: 750px;
+    margin: 35px auto;
+    padding: 20px;
+    background: #fffbea;
+    border: 1px solid #f4df91;
+    border-radius: 10px;
+}
+
+.notice strong {
+    color: #854d0e;
+}
+
+.notice p {
+    margin-top: 5px;
+    color: #713f12;
+}
+
+.center {
+    text-align: center;
+    margin-top: 35px;
+}
+
+
+/* FOOTER */
+
+footer {
+    background: #0f2942;
+    color: white;
+    padding: 30px 0;
+    text-align: center;
+}
+
+.footer-note {
+    color: #b7c5d4;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+    .nav-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .hero {
+        padding: 70px 0;
+    }
+
+    .hero h1 {
+        font-size: 35px;
+    }
+
+    .feature-grid,
+    .image-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.logout-form {
+    display: inline;
+}
+
+.nav-button {
+    background: none;
+    border: none;
+    color: #475569;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    color: #2563eb;
+}

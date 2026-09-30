@@ -1,0 +1,117 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}
+Methodology | BrainGAN-SRNet
+{% endblock %}
+
+{% block content %}
+
+<section class="page-section">
+
+    <div class="container">
+
+        <div class="page-header">
+
+            <span class="badge">
+                Research Methodology
+            </span>
+
+            <h1>BrainGAN-SRNet Methodology</h1>
+
+            <p>
+                An explainable deep learning framework for
+                brain tumor classification from MRI images.
+            </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+            <div class="feature-card">
+
+                <h3>1. MRI Preprocessing</h3>
+
+                <p>
+                    Brain MRI images are resized to
+                    224 × 224 pixels and converted to
+                    three-channel input before normalization.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <h3>2. AC-GAN Augmentation</h3>
+
+                <p>
+                    Auxiliary Classifier GAN is used during
+                    model development to generate synthetic
+                    samples for underrepresented tumor classes
+                    and improve class balance.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <h3>3. ResNet50 Classification</h3>
+
+                <p>
+                    A transfer-learning-based ResNet50
+                    classifier categorizes MRI images into
+                    Glioma, Meningioma, and Pituitary
+                    tumor classes.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <h3>4. Prediction</h3>
+
+                <p>
+                    The trained model produces class
+                    probabilities and identifies the class
+                    with the highest predicted probability.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <h3>5. Grad-CAM XAI</h3>
+
+                <p>
+                    Grad-CAM generates a visual explanation
+                    highlighting image regions that influenced
+                    the model's classification decision.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <h3>6. Web Deployment</h3>
+
+                <p>
+                    The trained BrainGAN-SRNet classifier
+                    and Grad-CAM explanation module are
+                    integrated into this Django application
+                    for research-oriented MRI analysis.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

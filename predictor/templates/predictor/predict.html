@@ -1,0 +1,109 @@
+{% extends "predictor/base.html" %}
+
+
+{% block title %}
+Analyze MRI | BrainGAN-SRNet
+{% endblock %}
+
+
+{% block content %}
+
+<section class="page-section">
+
+<div class="container">
+
+    <div class="page-header">
+
+        <span class="badge">
+            AI Analysis
+        </span>
+
+        <h1>Brain MRI Analysis</h1>
+
+        <p>
+            Upload a brain MRI image for
+            BrainGAN-SRNet classification and
+            Grad-CAM explanation.
+        </p>
+
+    </div>
+
+
+    <div class="upload-card">
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="upload-area">
+
+                <div class="upload-icon">
+                    +
+                </div>
+
+                <h3>
+                    Upload Brain MRI
+                </h3>
+
+                <p>
+                    Select a JPG, JPEG, or PNG image
+                </p>
+
+                {{ form.image }}
+
+                {% if form.non_field_errors %}
+
+                    <div class="error-message">
+
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                {% if form.image.errors %}
+
+                    <div class="error-message">
+
+                        {{ form.image.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <button type="submit"
+                    class="primary-button full-button">
+
+                Analyze MRI
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <div class="notice">
+
+        <strong>Research Use Only</strong>
+
+        <p>
+            This system provides AI-generated
+            classification results for research and
+            educational purposes. The output should
+            not be interpreted as a medical diagnosis.
+        </p>
+
+    </div>
+
+</div>
+
+</section>
+
+{% endblock %}

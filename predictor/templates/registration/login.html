@@ -1,0 +1,48 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}
+Login | BrainGAN-SRNet
+{% endblock %}
+
+{% block content %}
+
+<section class="page-section">
+
+    <div class="container">
+
+        <div class="upload-card">
+
+            <div class="page-header">
+                <span class="badge">Secure Access</span>
+
+                <h1>Login</h1>
+
+                <p>
+                    Sign in to access BrainGAN-SRNet
+                    prediction history.
+                </p>
+            </div>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <button
+                    type="submit"
+                    class="primary-button full-button">
+
+                    Login
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
