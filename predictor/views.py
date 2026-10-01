@@ -1,24 +1,12 @@
 import base64
 import io
 
-
 from django.contrib.auth.decorators import login_required
-
-
-from .models import Prediction
-
 from django.shortcuts import render
 from PIL import Image, UnidentifiedImageError
 
+from .models import Prediction
 from .forms import MRIUploadForm
-from .ml.inference import predict_image
-
-from .ml.gradcam import (
-    generate_gradcam,
-    create_gradcam_overlay,
-    image_to_base64,
-)
-
 
 
 # =========================================================
@@ -41,6 +29,7 @@ def predict(request):
     # -----------------------------------------------------
     # POST REQUEST
     # -----------------------------------------------------
+
     if request.method == "POST":
 
         form = MRIUploadForm(
@@ -51,6 +40,7 @@ def predict(request):
         # -------------------------------------------------
         # Validate uploaded file
         # -------------------------------------------------
+
         if form.is_valid():
 
             uploaded_file = form.cleaned_data["image"]
@@ -60,16 +50,14 @@ def predict(request):
             # =============================================
 
             try:
-                # Reset file pointer
+
                 uploaded_file.seek(0)
 
-                # Open image
                 image = Image.open(uploaded_file)
 
-                # Force Pillow to actually decode the image
+                # Force Pillow to decode the image
                 image.load()
 
-                # Convert to RGB
                 image = image.convert("RGB")
 
             except (
@@ -94,9 +82,21 @@ def predict(request):
 
             # =============================================
             # BrainGAN-SRNet PREDICTION
+            #
+            # IMPORTANT:
+            # Heavy ML modules are imported only when
+            # the user actually submits an MRI image.
             # =============================================
 
             try:
+
+                from .ml.inference import predict_image
+
+                from .ml.gradcam import (
+                    generate_gradcam,
+                    create_gradcam_overlay,
+                    image_to_base64,
+                )
 
                 result = predict_image(image)
 
@@ -177,7 +177,7 @@ def predict(request):
                 )
 
             # =============================================
-            # ORIGINAL MRI → BASE64
+            # ORIGINAL MRI -> BASE64
             # =============================================
 
             try:
@@ -221,7 +221,7 @@ def predict(request):
                 )
 
             # =============================================
-            # GRAD-CAM → BASE64
+            # GRAD-CAM -> BASE64
             # =============================================
 
             try:
@@ -269,6 +269,7 @@ def predict(request):
             # =============================================
 
             prediction_record = Prediction.objects.create(
+
                 predicted_class=predicted_class,
 
                 confidence=round(
@@ -299,7 +300,10 @@ def predict(request):
             # =============================================
 
             context = {
-                "prediction_id": prediction_record.id,
+
+                "prediction_id":
+                    prediction_record.id,
+
                 "predicted_class":
                     predicted_class,
 
@@ -329,6 +333,7 @@ def predict(request):
     # -----------------------------------------------------
     # GET REQUEST
     # -----------------------------------------------------
+
     else:
 
         form = MRIUploadForm()
@@ -370,6 +375,10 @@ def about(request):
     )
 
 
+# =========================================================
+# HISTORY PAGE
+# =========================================================
+
 @login_required
 def history(request):
 
@@ -384,5 +393,4 @@ def history(request):
             "predictions": predictions
         }
     )
-
 
