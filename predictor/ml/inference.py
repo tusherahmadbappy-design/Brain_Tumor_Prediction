@@ -2,46 +2,45 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-from .model import model, class_names, checkpoint, DEVICE
-
-
-IMG_SIZE = checkpoint.get("img_size", 224)
-
-preprocessing = checkpoint.get("preprocessing", {})
-
-MEAN = preprocessing.get(
-    "mean",
-    [0.485, 0.456, 0.406]
-)
-
-STD = preprocessing.get(
-    "std",
-    [0.229, 0.224, 0.225]
-)
-
-
-transform = transforms.Compose([
-    transforms.Resize((IMG_SIZE, IMG_SIZE)),
-    transforms.Grayscale(num_output_channels=3),
-    transforms.ToTensor(),
-    transforms.Normalize(
-        mean=MEAN,
-        std=STD
-    )
-])
+from .model import load_brain_tumor_model
 
 
 def predict_image(image):
+    # Load model only when prediction is requested
+    model, class_names, checkpoint = load_brain_tumor_model()
+
+    img_size = checkpoint.get("img_size", 224)
+
+    preprocessing = checkpoint.get("preprocessing", {})
+
+    mean = preprocessing.get(
+        "mean",
+        [0.485, 0.456, 0.406]
+    )
+
+    std = preprocessing.get(
+        "std",
+        [0.229, 0.224, 0.225]
+    )
+
+    transform = transforms.Compose([
+        transforms.Resize((img_size, img_size)),
+        transforms.Grayscale(num_output_channels=3),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=mean,
+            std=std
+        )
+    ])
+
     if not isinstance(image, Image.Image):
         image = Image.open(image)
 
     image = image.convert("RGB")
 
-    input_tensor = transform(image)
-    input_tensor = input_tensor.unsqueeze(0).to(DEVICE)
+    input_tensor = transform(image).unsqueeze(0)
 
-    with torch.no_grad():
-
+    with torch.inference_mode():
         outputs = model(input_tensor)
 
         probabilities = torch.softmax(

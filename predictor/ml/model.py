@@ -30,17 +30,30 @@ def build_model(num_classes=3):
     return model
 
 
+_model = None
+_class_names = None
+_checkpoint = None
+
+
 def load_brain_tumor_model():
+    global _model, _class_names, _checkpoint
+
+    # Do not load the model again if it is already in memory
+    if _model is not None:
+        return _model, _class_names, _checkpoint
+
+    print("Loading BrainGAN-SRNet...")
+
     try:
         checkpoint = torch.load(
             MODEL_PATH,
-            map_location=DEVICE,
+            map_location="cpu",
             weights_only=False
         )
     except TypeError:
         checkpoint = torch.load(
             MODEL_PATH,
-            map_location=DEVICE
+            map_location="cpu"
         )
 
     num_classes = checkpoint.get("num_classes", 3)
@@ -56,16 +69,14 @@ def load_brain_tumor_model():
         checkpoint["model_state_dict"]
     )
 
-    model.to(DEVICE)
     model.eval()
 
+    _model = model
+    _class_names = class_names
+    _checkpoint = checkpoint
+
     print("BrainGAN-SRNet loaded successfully.")
-    print("Device:", DEVICE)
+    print("Device: CPU")
     print("Classes:", class_names)
 
-    return model, class_names, checkpoint
-
-
-model, class_names, checkpoint = load_brain_tumor_model()
-
-
+    return _model, _class_names, _checkpoint

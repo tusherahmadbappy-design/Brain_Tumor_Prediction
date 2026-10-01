@@ -12,11 +12,13 @@ from PIL import Image, UnidentifiedImageError
 
 from .forms import MRIUploadForm
 from .ml.inference import predict_image
+
 from .ml.gradcam import (
-    gradcam,
+    generate_gradcam,
     create_gradcam_overlay,
     image_to_base64,
 )
+
 
 
 # =========================================================
@@ -141,7 +143,7 @@ def predict(request):
 
             try:
 
-                cam, class_idx = gradcam.generate(
+                cam, class_idx = generate_gradcam(
                     input_tensor
                 )
 
