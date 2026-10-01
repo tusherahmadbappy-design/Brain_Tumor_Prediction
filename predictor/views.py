@@ -81,22 +81,15 @@ def predict(request):
                 )
 
             # =============================================
-            # BrainGAN-SRNet PREDICTION
-            #
-            # IMPORTANT:
-            # Heavy ML modules are imported only when
-            # the user actually submits an MRI image.
+            # BrainGAN-SRNet ONNX PREDICTION
             # =============================================
 
             try:
 
+                # Lazy import:
+                # ONNX Runtime loads only when an MRI
+                # is actually submitted.
                 from .ml.inference import predict_image
-
-                from .ml.gradcam import (
-                    generate_gradcam,
-                    create_gradcam_overlay,
-                    image_to_base64,
-                )
 
                 result = predict_image(image)
 
@@ -112,60 +105,18 @@ def predict(request):
                     "probabilities"
                 ]
 
-                input_tensor = result[
-                    "input_tensor"
-                ]
-
             except Exception as error:
 
                 print(
                     "Prediction error:",
-                    error
+                    error,
+                    flush=True
                 )
 
                 form.add_error(
                     None,
                     "The MRI image could not be analyzed. "
                     "Please try another valid image."
-                )
-
-                return render(
-                    request,
-                    "predictor/predict.html",
-                    {
-                        "form": form
-                    }
-                )
-
-            # =============================================
-            # Grad-CAM XAI
-            # =============================================
-
-            try:
-
-                cam, class_idx = generate_gradcam(
-                    input_tensor
-                )
-
-                gradcam_image = (
-                    create_gradcam_overlay(
-                        image,
-                        cam
-                    )
-                )
-
-            except Exception as error:
-
-                print(
-                    "Grad-CAM error:",
-                    error
-                )
-
-                form.add_error(
-                    None,
-                    "The prediction was generated, "
-                    "but the Grad-CAM explanation "
-                    "could not be created."
                 )
 
                 return render(
@@ -190,7 +141,8 @@ def predict(request):
 
                 resized_image.save(
                     original_buffer,
-                    format="PNG"
+                    format="PNG",
+                    optimize=True
                 )
 
                 original_base64 = (
@@ -199,11 +151,14 @@ def predict(request):
                     ).decode("utf-8")
                 )
 
+                original_buffer.close()
+
             except Exception as error:
 
                 print(
                     "Image conversion error:",
-                    error
+                    error,
+                    flush=True
                 )
 
                 form.add_error(
@@ -221,45 +176,16 @@ def predict(request):
                 )
 
             # =============================================
-            # GRAD-CAM -> BASE64
-            # =============================================
-
-            try:
-
-                gradcam_base64 = image_to_base64(
-                    gradcam_image
-                )
-
-            except Exception as error:
-
-                print(
-                    "Grad-CAM conversion error:",
-                    error
-                )
-
-                form.add_error(
-                    None,
-                    "Unable to prepare the Grad-CAM "
-                    "visualization for display."
-                )
-
-                return render(
-                    request,
-                    "predictor/predict.html",
-                    {
-                        "form": form
-                    }
-                )
-
-            # =============================================
             # CLASS PROBABILITIES
             # =============================================
 
             probability_percent = {
+
                 name: round(
                     value * 100,
                     2
                 )
+
                 for name, value
                 in probabilities.items()
             }
@@ -292,7 +218,9 @@ def predict(request):
                     0
                 ),
 
-                xai_generated=True
+                # Grad-CAM is temporarily disabled for
+                # the low-memory ONNX deployment.
+                xai_generated=False
             )
 
             # =============================================
@@ -316,8 +244,10 @@ def predict(request):
                 "original_image":
                     original_base64,
 
+                # Keep variable available so template
+                # does not fail if it checks this value.
                 "gradcam_image":
-                    gradcam_base64,
+                    None,
             }
 
             # =============================================
@@ -393,4 +323,3 @@ def history(request):
             "predictions": predictions
         }
     )
-

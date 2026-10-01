@@ -4,7 +4,5 @@ gunicorn==26.2.0
 numpy==2.5.3
 pillow==12.3.0
 psycopg2-binary==2.9.13
-torch==2.14.0
-torchvision==0.29.0
+onnxruntime==1.30.0
 whitenoise==6.12.0
-
