@@ -67,11 +67,11 @@ Analysis Result | BrainGAN-SRNet
 
         <div class="image-card">
 
-            <h3>Grad-CAM Explanation</h3>
+            <h3>Score-CAM Explanation</h3>
 
             <img
-                src="data:image/png;base64,{{ gradcam_image }}"
-                alt="Grad-CAM explanation">
+                src="data:image/png;base64,{{ scorecam_image }}"
+                alt="Score-CAM explanation">
 
             <p class="image-description">
                 Highlighted regions represent areas
@@ -129,7 +129,7 @@ Analysis Result | BrainGAN-SRNet
         <strong>Important</strong>
 
         <p>
-            Grad-CAM visualizes image regions that
+            Score-CAM visualizes image regions that
             contributed to the model's classification.
             It should not be interpreted as a
             clinically validated tumor segmentation.

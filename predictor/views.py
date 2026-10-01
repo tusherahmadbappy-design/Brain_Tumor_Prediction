@@ -26,10 +26,6 @@ def home(request):
 
 def predict(request):
 
-    # -----------------------------------------------------
-    # POST REQUEST
-    # -----------------------------------------------------
-
     if request.method == "POST":
 
         form = MRIUploadForm(
@@ -37,28 +33,27 @@ def predict(request):
             request.FILES
         )
 
-        # -------------------------------------------------
-        # Validate uploaded file
-        # -------------------------------------------------
-
         if form.is_valid():
 
             uploaded_file = form.cleaned_data["image"]
 
-            # =============================================
+            # =================================================
             # SAFE IMAGE DECODING
-            # =============================================
+            # =================================================
 
             try:
 
                 uploaded_file.seek(0)
 
-                image = Image.open(uploaded_file)
+                image = Image.open(
+                    uploaded_file
+                )
 
-                # Force Pillow to decode the image
                 image.load()
 
-                image = image.convert("RGB")
+                image = image.convert(
+                    "RGB"
+                )
 
             except (
                 UnidentifiedImageError,
@@ -80,18 +75,17 @@ def predict(request):
                     }
                 )
 
-            # =============================================
-            # BrainGAN-SRNet ONNX PREDICTION
-            # =============================================
+            # =================================================
+            # ONNX PREDICTION
+            # =================================================
 
             try:
 
-                # Lazy import:
-                # ONNX Runtime loads only when an MRI
-                # is actually submitted.
                 from .ml.inference import predict_image
 
-                result = predict_image(image)
+                result = predict_image(
+                    image
+                )
 
                 predicted_class = result[
                     "predicted_class"
@@ -127,9 +121,9 @@ def predict(request):
                     }
                 )
 
-            # =============================================
+            # =================================================
             # ORIGINAL MRI -> BASE64
-            # =============================================
+            # =================================================
 
             try:
 
@@ -175,9 +169,75 @@ def predict(request):
                     }
                 )
 
-            # =============================================
+            # =================================================
+            # SCORE-CAM XAI
+            # =================================================
+
+            scorecam_base64 = None
+            xai_generated = False
+
+            try:
+
+                from .ml.xai import (
+                    generate_scorecam,
+                    create_scorecam_overlay,
+                    image_to_base64,
+                )
+
+                class_names = [
+                    "Glioma",
+                    "Meningioma",
+                    "Pituitary"
+                ]
+
+                class_idx = class_names.index(
+                    predicted_class
+                )
+
+                cam, generated_class_idx = (
+                    generate_scorecam(
+                        image,
+                        class_idx=class_idx
+                    )
+                )
+
+                scorecam_overlay = (
+                    create_scorecam_overlay(
+                        image,
+                        cam
+                    )
+                )
+
+                scorecam_base64 = (
+                    image_to_base64(
+                        scorecam_overlay
+                    )
+                )
+
+                xai_generated = True
+
+                print(
+                    "Score-CAM generated successfully.",
+                    flush=True
+                )
+
+            except Exception as error:
+
+                # Prediction should still work even if
+                # explanation generation fails.
+
+                print(
+                    "Score-CAM error:",
+                    error,
+                    flush=True
+                )
+
+                scorecam_base64 = None
+                xai_generated = False
+
+            # =================================================
             # CLASS PROBABILITIES
-            # =============================================
+            # =================================================
 
             probability_percent = {
 
@@ -190,9 +250,9 @@ def predict(request):
                 in probabilities.items()
             }
 
-            # =============================================
-            # SAVE PREDICTION TO DATABASE
-            # =============================================
+            # =================================================
+            # SAVE RESULT
+            # =================================================
 
             prediction_record = Prediction.objects.create(
 
@@ -218,14 +278,12 @@ def predict(request):
                     0
                 ),
 
-                # Grad-CAM is temporarily disabled for
-                # the low-memory ONNX deployment.
-                xai_generated=False
+                xai_generated=xai_generated
             )
 
-            # =============================================
-            # RESULT PAGE CONTEXT
-            # =============================================
+            # =================================================
+            # RESULT CONTEXT
+            # =================================================
 
             context = {
 
@@ -236,7 +294,10 @@ def predict(request):
                     predicted_class,
 
                 "confidence":
-                    round(confidence, 2),
+                    round(
+                        confidence,
+                        2
+                    ),
 
                 "probabilities":
                     probability_percent,
@@ -244,15 +305,18 @@ def predict(request):
                 "original_image":
                     original_base64,
 
-                # Keep variable available so template
-                # does not fail if it checks this value.
-                "gradcam_image":
-                    None,
-            }
+                # New correct name
+                "scorecam_image":
+                    scorecam_base64,
 
-            # =============================================
-            # SHOW RESULT PAGE
-            # =============================================
+                "xai_generated":
+                    xai_generated,
+
+                # Temporary backward compatibility with
+                # existing result.html.
+                "gradcam_image":
+                    scorecam_base64,
+            }
 
             return render(
                 request,
@@ -260,17 +324,9 @@ def predict(request):
                 context
             )
 
-    # -----------------------------------------------------
-    # GET REQUEST
-    # -----------------------------------------------------
-
     else:
 
         form = MRIUploadForm()
-
-    # =====================================================
-    # SHOW UPLOAD PAGE
-    # =====================================================
 
     return render(
         request,
@@ -312,8 +368,10 @@ def about(request):
 @login_required
 def history(request):
 
-    predictions = Prediction.objects.all().order_by(
-        "-created_at"
+    predictions = (
+        Prediction.objects
+        .all()
+        .order_by("-created_at")
     )
 
     return render(
@@ -323,3 +381,4 @@ def history(request):
             "predictions": predictions
         }
     )
+
