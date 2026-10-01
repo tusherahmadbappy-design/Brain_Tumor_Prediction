@@ -27,4 +27,3 @@ media/
 # Logs
 *.log
 # Trained ML model
-*.pt
