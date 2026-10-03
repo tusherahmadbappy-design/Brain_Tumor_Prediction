@@ -27,6 +27,33 @@
 
 
 <body>
+        <!-- ==========================================
+        BrainGAN-SRNet Loading Screen
+    =========================================== -->
+
+    <div id="page-loader" class="page-loader">
+
+        <div class="loader-content">
+
+            <div class="loader-brain">
+                AI
+            </div>
+
+            <h2>BrainGAN-SRNet</h2>
+
+            <div class="loader-spinner"></div>
+
+            <p>
+                Initializing AI System...
+            </p>
+
+            <span>
+                Preparing brain MRI analysis
+            </span>
+
+        </div>
+
+    </div>
 
     <div class="site-wrapper">
 
@@ -175,7 +202,23 @@
 
 
     </div>
+    <script>
+        window.addEventListener("load", function () {
 
+            const loader = document.getElementById("page-loader");
+
+            if (loader) {
+
+                loader.classList.add("loader-hidden");
+
+                setTimeout(function () {
+                    loader.style.display = "none";
+                }, 400);
+
+            }
+
+        });
+    </script>
 </body>
 
 </html>
