@@ -1,0 +1,267 @@
+
+{% extends "predictor/base.html" %}
+
+{% block title %}
+My Profile | BrainGAN-SRNet
+{% endblock %}
+
+{% block content %}
+
+<section class="profile-page">
+
+    <div class="container">
+
+        <div class="profile-header">
+            <div>
+                <h1>My Profile</h1>
+                <p>
+                    Manage your account and review your
+                    BrainGAN-SRNet MRI analysis history.
+                </p>
+            </div>
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- ACCOUNT INFORMATION -->
+        <!-- ============================================= -->
+
+        <div class="profile-card">
+
+            <div class="profile-card-header">
+                <div>
+                    <h2>Account Information</h2>
+                    <p>
+                        Your personal account details.
+                    </p>
+                </div>
+
+                <a
+                    href="{% url 'edit_profile' %}"
+                    class="profile-button"
+                >
+                    Edit Profile
+                </a>
+            </div>
+
+
+            <div class="account-grid">
+
+                <div class="account-item">
+                    <span>First Name</span>
+                    <strong>
+                        {{ user.first_name|default:"Not provided" }}
+                    </strong>
+                </div>
+
+                <div class="account-item">
+                    <span>Last Name</span>
+                    <strong>
+                        {{ user.last_name|default:"Not provided" }}
+                    </strong>
+                </div>
+
+                <div class="account-item">
+                    <span>Email Address</span>
+                    <strong>
+                        {{ user.email }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- PREDICTION HISTORY -->
+        <!-- ============================================= -->
+
+        <div class="profile-card">
+
+            <div class="profile-card-header">
+
+                <div>
+                    <h2>Prediction History</h2>
+                    <p>
+                        Your previous MRI classification results.
+                    </p>
+                </div>
+
+                <a
+                    href="{% url 'predict' %}"
+                    class="profile-button"
+                >
+                    Analyze New MRI
+                </a>
+
+            </div>
+
+
+            {% if predictions %}
+
+                <div class="history-table-wrapper">
+
+                    <table class="history-table">
+
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Prediction</th>
+                                <th>Confidence</th>
+                                <th>Glioma</th>
+                                <th>Meningioma</th>
+                                <th>Pituitary</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for prediction in predictions %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ prediction.created_at|date:"M d, Y H:i" }}
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            {{ prediction.predicted_class }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ prediction.confidence|floatformat:2 }}%
+                                    </td>
+
+                                    <td>
+                                        {{ prediction.glioma_probability|floatformat:2 }}%
+                                    </td>
+
+                                    <td>
+                                        {{ prediction.meningioma_probability|floatformat:2 }}%
+                                    </td>
+
+                                    <td>
+                                        {{ prediction.pituitary_probability|floatformat:2 }}%
+                                    </td>
+
+                                    <td>
+
+                                        <form
+                                            method="post"
+                                            action="{% url 'delete_prediction' prediction.id %}"
+                                            onsubmit="return confirm('Delete this prediction from your history?');"
+                                        >
+
+                                            {% csrf_token %}
+
+                                            <button
+                                                type="submit"
+                                                class="delete-button"
+                                            >
+                                                Delete
+                                            </button>
+
+                                        </form>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-history">
+
+                    <h3>No prediction history yet</h3>
+
+                    <p>
+                        Analyze your first brain MRI to see
+                        the result here.
+                    </p>
+
+                    <a
+                        href="{% url 'predict' %}"
+                        class="profile-button"
+                    >
+                        Analyze MRI
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- SECURITY -->
+        <!-- ============================================= -->
+
+        <div class="profile-card">
+
+            <div class="profile-card-header">
+
+                <div>
+                    <h2>Security & Account</h2>
+                    <p>
+                        Manage your password or sign out
+                        of BrainGAN-SRNet.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="profile-actions">
+
+                <a
+                    href="{% url 'account_change_password' %}"
+                    class="profile-button"
+                >
+                    Change Password
+                </a>
+
+
+                <form
+                    method="post"
+                    action="{% url 'account_logout' %}"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="logout-button"
+                    >
+                        Logout
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <div class="profile-disclaimer">
+            BrainGAN-SRNet is intended for research and
+            educational use only and is not a substitute
+            for professional clinical diagnosis.
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}
+Sign In | BrainGAN-SRNet
+{% endblock %}
+
+{% block content %}
+
+<section class="auth-page">
+
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <span class="badge">Secure Access</span>
+
+            <h1>Welcome Back</h1>
+
+            <p>
+                Sign in to analyze brain MRI images
+                and access your prediction history.
+            </p>
+
+        </div>
+
+
+        {% if form.non_field_errors %}
+            <div class="auth-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+
+        <form
+            method="post"
+            action="{% url 'account_login' %}"
+            class="auth-form"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label for="{{ form.login.id_for_label }}">
+                    Email
+                </label>
+
+                {{ form.login }}
+
+                {% if form.login.errors %}
+                    <div class="field-error">
+                        {{ form.login.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <label for="{{ form.password.id_for_label }}">
+                    Password
+                </label>
+
+                {{ form.password }}
+
+                {% if form.password.errors %}
+                    <div class="field-error">
+                        {{ form.password.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+
+            <!-- REMEMBER + FORGOT PASSWORD -->
+
+            <div class="auth-options">
+
+                {% if form.remember %}
+
+                    <label class="remember-me">
+                        {{ form.remember }}
+                        <span>Remember me</span>
+                    </label>
+
+                {% else %}
+
+                    <span></span>
+
+                {% endif %}
+
+
+                <a href="{% url 'account_reset_password' %}">
+                    Forgot password?
+                </a>
+
+            </div>
+
+
+            <!-- REDIRECT -->
+
+            {% if redirect_field_value %}
+
+                <input
+                    type="hidden"
+                    name="{{ redirect_field_name }}"
+                    value="{{ redirect_field_value }}"
+                >
+
+            {% endif %}
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                type="submit"
+                class="primary-button auth-submit"
+            >
+                Sign In
+            </button>
+
+        </form>
+
+
+        <!-- SIGN UP -->
+
+        <div class="auth-footer">
+
+            <p>
+                Don't have an account?
+
+                <a href="{% url 'account_signup' %}">
+                    Create Account
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

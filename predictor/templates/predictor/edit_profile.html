@@ -1,0 +1,103 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}
+Edit Profile | BrainGAN-SRNet
+{% endblock %}
+
+{% block content %}
+
+<section class="auth-page">
+
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <span class="badge">
+                Account Settings
+            </span>
+
+            <h1>Edit Profile</h1>
+
+            <p>
+                Update your BrainGAN-SRNet
+                account information.
+            </p>
+
+        </div>
+
+
+        {% if form.non_field_errors %}
+
+            <div class="auth-error">
+                {{ form.non_field_errors }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            method="post"
+            action="{% url 'edit_profile' %}"
+            class="auth-form"
+        >
+
+            {% csrf_token %}
+
+
+            {% for field in form %}
+
+                <div class="form-group">
+
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+
+                        <small class="form-help-text">
+                            {{ field.help_text }}
+                        </small>
+
+                    {% endif %}
+
+
+                    {% if field.errors %}
+
+                        <div class="field-error">
+                            {{ field.errors }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+
+            <button
+                type="submit"
+                class="primary-button auth-submit"
+            >
+                Save Changes
+            </button>
+
+        </form>
+
+
+        <div class="auth-footer">
+
+            <p>
+                <a href="{% url 'profile' %}">
+                    Back to Profile
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

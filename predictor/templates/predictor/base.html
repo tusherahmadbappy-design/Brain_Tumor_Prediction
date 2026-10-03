@@ -4,6 +4,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -21,137 +22,161 @@
         rel="stylesheet"
         href="{% static 'predictor/css/style.css' %}"
     >
+
 </head>
 
 
 <body>
 
-<!-- ============================= -->
-<!-- NAVIGATION BAR -->
-<!-- ============================= -->
-
-<nav class="navbar">
-
-    <div class="container nav-container">
-
-        <!-- Logo -->
-
-        <a
-            href="{% url 'home' %}"
-            class="logo"
-        >
-            BrainGAN-SRNet
-        </a>
+    <div class="site-wrapper">
 
 
-        <!-- Navigation Links -->
+        <!-- ======================================== -->
+        <!-- NAVIGATION BAR -->
+        <!-- ======================================== -->
 
-        <div class="nav-links">
+        <nav class="navbar">
 
-            <a href="{% url 'home' %}">
-                Home
-            </a>
-
-            <a href="{% url 'predict' %}">
-                Analyze MRI
-            </a>
-
-            <a href="{% url 'methodology' %}">
-                Methodology
-            </a>
-
-            <a href="{% url 'about' %}">
-                About
-            </a>
+            <div class="container nav-container">
 
 
-            <!-- ========================= -->
-            <!-- AUTHENTICATED USER -->
-            <!-- ========================= -->
+                <!-- LOGO -->
 
-            {% if user.is_authenticated %}
-
-                <a href="{% url 'history' %}">
-                    History
-                </a>
-
-                <span class="nav-user">
-                    {{ user.username }}
-                </span>
-
-                <form
-                    method="POST"
-                    action="{% url 'logout' %}"
-                    class="logout-form"
+                <a
+                    href="{% url 'home' %}"
+                    class="logo"
                 >
 
-                    {% csrf_token %}
-
-                    <button
-                        type="submit"
-                        class="nav-button"
+                    <img
+                        src="{% static 'predictor/images/BrainGAN-SRNet_AI_Brain_Logo.png' %}"
+                        alt="BrainGAN-SRNet Logo"
+                        class="site-logo"
                     >
-                        Logout
-                    </button>
 
-                </form>
-
-
-            <!-- ========================= -->
-            <!-- NOT LOGGED IN -->
-            <!-- ========================= -->
-
-            {% else %}
-
-                <a href="{% url 'login' %}">
-                    Login
                 </a>
 
-            {% endif %}
 
-        </div>
+                <!-- ======================================== -->
+                <!-- NAVIGATION LINKS -->
+                <!-- ======================================== -->
+
+                <div class="nav-links">
+
+
+                    <!-- HOME -->
+
+                    <a href="{% url 'home' %}">
+                        Home
+                    </a>
+
+
+                    <!-- MRI ANALYSIS -->
+
+                    <a href="{% url 'predict' %}">
+                        Analyze MRI
+                    </a>
+
+
+                    <!-- METHODOLOGY -->
+
+                    <a href="{% url 'methodology' %}">
+                        Methodology
+                    </a>
+
+
+                    <!-- ABOUT -->
+
+                    <a href="{% url 'about' %}">
+                        About
+                    </a>
+
+
+                    <!-- ==================================== -->
+                    <!-- AUTHENTICATED USER -->
+                    <!-- ==================================== -->
+
+                    {% if user.is_authenticated %}
+
+
+                        <!-- PREDICTION HISTORY -->
+
+                        <a href="{% url 'history' %}">
+                            History
+                        </a>
+
+
+                        <!-- PROFILE -->
+
+                        <a
+                            href="{% url 'profile' %}"
+                            class="nav-login"
+                        >
+                            Profile
+                        </a>
+
+
+                    {% else %}
+
+
+                        <!-- LOGIN -->
+
+                        <a
+                            href="{% url 'account_login' %}"
+                            class="nav-login"
+                        >
+                            Login
+                        </a>
+
+
+                    {% endif %}
+
+
+                </div>
+
+            </div>
+
+        </nav>
+
+
+        <!-- ======================================== -->
+        <!-- PAGE CONTENT -->
+        <!-- ======================================== -->
+
+        <main class="site-main">
+
+            {% block content %}
+
+            {% endblock %}
+
+        </main>
+
+
+        <!-- ======================================== -->
+        <!-- FOOTER -->
+        <!-- ======================================== -->
+
+        <footer>
+
+            <div class="container">
+
+                <p>
+                    BrainGAN-SRNet — Explainable AI for
+                    Brain Tumor MRI Classification
+                </p>
+
+                <p class="footer-note">
+                    Research and educational use only.
+                    Not intended for clinical diagnosis.
+                </p>
+
+            </div>
+
+        </footer>
+
 
     </div>
-
-</nav>
-
-
-<!-- ============================= -->
-<!-- PAGE CONTENT -->
-<!-- ============================= -->
-
-<main>
-
-    {% block content %}
-
-    {% endblock %}
-
-</main>
-
-
-<!-- ============================= -->
-<!-- FOOTER -->
-<!-- ============================= -->
-
-<footer>
-
-    <div class="container">
-
-        <p>
-            BrainGAN-SRNet — Explainable AI for
-            Brain Tumor MRI Classification
-        </p>
-
-        <p class="footer-note">
-            Research and educational use only.
-            Not intended for clinical diagnosis.
-        </p>
-
-    </div>
-
-</footer>
-
 
 </body>
 
 </html>
+

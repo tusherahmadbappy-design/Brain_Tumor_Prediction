@@ -6,71 +6,369 @@ Prediction History | BrainGAN-SRNet
 
 {% block content %}
 
-<section class="page-section">
+<section class="history-page">
 
-<div class="container">
+    <div class="container">
 
-    <div class="page-header">
-        <span class="badge">Analysis Records</span>
-        <h1>Prediction History</h1>
+        <!-- =================================================
+             PAGE HEADER
+        ================================================== -->
 
-        <p>
-            Previous BrainGAN-SRNet analysis results.
-        </p>
+        <div class="history-header">
+
+            <span class="badge">
+                Analysis Records
+            </span>
+
+            <h1>Prediction History</h1>
+
+            <p>
+                Review your previous BrainGAN-SRNet
+                brain MRI analysis results and
+                Score-CAM explanations.
+            </p>
+
+        </div>
+
+
+        {% if predictions %}
+
+        <div class="history-card">
+
+            <!-- =================================================
+                 CARD HEADER
+            ================================================== -->
+
+            <div class="history-card-header">
+
+                <div>
+
+                    <h2>
+                        Analysis Records
+                    </h2>
+
+                    <p>
+                        Your previously analyzed MRI scans,
+                        classification results, and
+                        explainability visualizations.
+                    </p>
+
+                </div>
+
+                <span class="record-count">
+
+                    {{ predictions|length }}
+                    Record{{ predictions|length|pluralize }}
+
+                </span>
+
+            </div>
+
+
+            <!-- =================================================
+                 HISTORY TABLE
+            ================================================== -->
+
+            <div class="history-table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                MRI
+                            </th>
+
+                            <th>
+                                Score-CAM
+                            </th>
+
+                            <th>
+                                Record ID
+                            </th>
+
+                            <th>
+                                Prediction
+                            </th>
+
+                            <th>
+                                Confidence
+                            </th>
+
+                            <th>
+                                Analysis Date
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for prediction in predictions %}
+
+                        <tr>
+
+                            <!-- =================================
+                                 ORIGINAL MRI
+                            ================================== -->
+
+                            <td>
+
+                                {% if prediction.image %}
+
+                                    <a
+                                        href="{% url 'prediction_detail' prediction.id %}"
+                                        class="history-image-link"
+                                        title="View prediction details"
+                                    >
+
+                                        <img
+                                            src="{{ prediction.image.url }}"
+                                            alt="Brain MRI"
+                                            class="history-mri-thumbnail"
+                                        >
+
+                                    </a>
+
+                                {% else %}
+
+                                    <div
+                                        class="history-no-image"
+                                        title="Original MRI unavailable"
+                                    >
+                                        N/A
+                                    </div>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- =================================
+                                 SCORE-CAM
+                            ================================== -->
+
+                            <td>
+
+                                {% if prediction.scorecam_image %}
+
+                                    <a
+                                        href="{% url 'prediction_detail' prediction.id %}"
+                                        class="history-image-link"
+                                        title="View Score-CAM explanation"
+                                    >
+
+                                        <img
+                                            src="{{ prediction.scorecam_image.url }}"
+                                            alt="Score-CAM explanation"
+                                            class="history-mri-thumbnail history-scorecam-thumbnail"
+                                        >
+
+                                    </a>
+
+                                {% else %}
+
+                                    <div
+                                        class="history-no-image"
+                                        title="Score-CAM unavailable"
+                                    >
+                                        N/A
+                                    </div>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- =================================
+                                 RECORD ID
+                            ================================== -->
+
+                            <td>
+
+                                <span class="record-id">
+                                    #{{ prediction.id }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================
+                                 PREDICTION
+                            ================================== -->
+
+                            <td>
+
+                                <span class="prediction-label">
+                                    {{ prediction.predicted_class }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- =================================
+                                 CONFIDENCE
+                            ================================== -->
+
+                            <td>
+
+                                <div class="confidence-cell">
+
+                                    <strong>
+                                        {{ prediction.confidence|floatformat:2 }}%
+                                    </strong>
+
+                                    <div class="confidence-track">
+
+                                        <div
+                                            class="confidence-fill"
+                                            style="width: {{ prediction.confidence }}%;"
+                                        ></div>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- =================================
+                                 ANALYSIS DATE
+                            ================================== -->
+
+                            <td>
+
+                                <div class="history-date">
+
+                                    <strong>
+                                        {{ prediction.created_at|date:"M d, Y" }}
+                                    </strong>
+
+                                    <span>
+                                        {{ prediction.created_at|date:"h:i A" }}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- =================================
+                                 ACTIONS
+                            ================================== -->
+
+                            <td>
+
+                                <div class="history-actions">
+
+                                    <!-- VIEW -->
+
+                                    <a
+                                        href="{% url 'prediction_detail' prediction.id %}"
+                                        class="history-view-button"
+                                    >
+                                        View
+                                    </a>
+
+
+                                    <!-- DELETE -->
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'delete_prediction' prediction.id %}"
+                                        class="history-delete-form"
+                                        onsubmit="return confirm('Are you sure you want to delete this prediction and its saved images?');"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="history-delete-button"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+        <!-- =================================================
+             EMPTY HISTORY
+        ================================================== -->
+
+        <div class="history-empty">
+
+            <div class="history-empty-icon">
+                MRI
+            </div>
+
+            <h2>
+                No Prediction History Yet
+            </h2>
+
+            <p>
+                Your BrainGAN-SRNet MRI analysis results
+                will appear here after your first prediction.
+            </p>
+
+            <a
+                href="{% url 'predict' %}"
+                class="primary-button"
+            >
+                Analyze an MRI
+            </a>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             BOTTOM ACTION
+        ================================================== -->
+
+        {% if predictions %}
+
+            <div class="history-bottom-action">
+
+                <a
+                    href="{% url 'predict' %}"
+                    class="primary-button"
+                >
+                    Analyze New MRI
+                </a>
+
+            </div>
+
+        {% endif %}
+
     </div>
-
-    <div class="probability-card">
-
-        <table width="100%">
-
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Prediction</th>
-                    <th>Confidence</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-            {% for prediction in predictions %}
-
-                <tr>
-                    <td>
-                        {{ prediction.id }}
-                    </td>
-
-                    <td>
-                        {{ prediction.predicted_class }}
-                    </td>
-
-                    <td>
-                        {{ prediction.confidence|floatformat:2 }}%
-                    </td>
-
-                    <td>
-                        {{ prediction.created_at }}
-                    </td>
-                </tr>
-
-            {% empty %}
-
-                <tr>
-                    <td colspan="4">
-                        No predictions available.
-                    </td>
-                </tr>
-
-            {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
 
 </section>
 

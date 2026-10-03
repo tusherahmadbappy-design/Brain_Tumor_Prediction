@@ -1,0 +1,152 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}
+Create Account | BrainGAN-SRNet
+{% endblock %}
+
+{% block content %}
+
+<section class="auth-page">
+
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <span class="badge">
+                Create Account
+            </span>
+
+            <h1>Join BrainGAN-SRNet</h1>
+
+            <p>
+                Create an account to analyze brain MRI images
+                and securely access your prediction history.
+            </p>
+
+        </div>
+
+
+        {% if form.non_field_errors %}
+
+            <div class="auth-error">
+                {{ form.non_field_errors }}
+            </div>
+
+        {% endif %}
+
+
+        <form
+            method="post"
+            action="{% url 'account_signup' %}"
+            class="auth-form"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label for="{{ form.email.id_for_label }}">
+                    Email Address
+                </label>
+
+                {{ form.email }}
+
+                {% if form.email.errors %}
+
+                    <div class="field-error">
+                        {{ form.email.errors }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <label for="{{ form.password1.id_for_label }}">
+                    Password
+                </label>
+
+                {{ form.password1 }}
+
+                {% if form.password1.errors %}
+
+                    <div class="field-error">
+                        {{ form.password1.errors }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- CONFIRM PASSWORD -->
+
+            <div class="form-group">
+
+                <label for="{{ form.password2.id_for_label }}">
+                    Confirm Password
+                </label>
+
+                {{ form.password2 }}
+
+                {% if form.password2.errors %}
+
+                    <div class="field-error">
+                        {{ form.password2.errors }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if redirect_field_value %}
+
+                <input
+                    type="hidden"
+                    name="{{ redirect_field_name }}"
+                    value="{{ redirect_field_value }}"
+                >
+
+            {% endif %}
+
+
+            <!-- CREATE ACCOUNT BUTTON -->
+
+            <button
+                type="submit"
+                class="primary-button auth-submit"
+            >
+                Create Account
+            </button>
+
+        </form>
+
+
+        <!-- LOGIN LINK -->
+
+        <div class="auth-footer">
+
+            <p>
+                Already have an account?
+
+                <a href="{% url 'account_login' %}">
+                    Sign In
+                </a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

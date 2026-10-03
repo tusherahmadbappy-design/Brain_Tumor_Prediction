@@ -1,0 +1,391 @@
+{% extends "predictor/base.html" %}
+
+{% block title %}
+Prediction Details | BrainGAN-SRNet
+{% endblock %}
+
+{% block content %}
+
+<section class="detail-page">
+
+    <div class="container">
+
+        <!-- PAGE HEADER -->
+
+        <div class="detail-header">
+
+            <span class="badge">
+                Saved Analysis
+            </span>
+
+            <h1>Prediction Details</h1>
+
+            <p>
+                Review the saved MRI classification result
+                and Score-CAM explanation.
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             MRI + SCORE-CAM COMPARISON
+        ================================================== -->
+
+        <div class="detail-image-grid">
+
+            <!-- ORIGINAL MRI -->
+
+            <div class="detail-image-card">
+
+                <div class="detail-image-header">
+
+                    <div>
+                        <span class="detail-image-label">
+                            Input Image
+                        </span>
+
+                        <h2>Original MRI</h2>
+                    </div>
+
+                </div>
+
+
+                <div class="detail-image-container">
+
+                    {% if prediction.image %}
+
+                        <img
+                            src="{{ prediction.image.url }}"
+                            alt="Original brain MRI"
+                            class="detail-main-image"
+                        >
+
+                    {% else %}
+
+                        <div class="detail-image-unavailable">
+                            <strong>MRI Unavailable</strong>
+                            <span>
+                                The original MRI was not saved
+                                for this record.
+                            </span>
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- SCORE-CAM -->
+
+            <div class="detail-image-card">
+
+                <div class="detail-image-header">
+
+                    <div>
+                        <span class="detail-image-label">
+                            Explainable AI
+                        </span>
+
+                        <h2>Score-CAM</h2>
+                    </div>
+
+
+                    {% if prediction.scorecam_image %}
+
+                        <span class="xai-status xai-success">
+                            Generated
+                        </span>
+
+                    {% else %}
+
+                        <span class="xai-status xai-unavailable">
+                            Unavailable
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="detail-image-container">
+
+                    {% if prediction.scorecam_image %}
+
+                        <img
+                            src="{{ prediction.scorecam_image.url }}"
+                            alt="Score-CAM explanation"
+                            class="detail-main-image"
+                        >
+
+                    {% else %}
+
+                        <div class="detail-image-unavailable">
+
+                            <strong>
+                                Score-CAM Unavailable
+                            </strong>
+
+                            <span>
+                                No saved Score-CAM visualization
+                                is available for this prediction.
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PREDICTION SUMMARY
+        ================================================== -->
+
+        <div class="detail-result-card">
+
+            <div class="detail-result-header">
+
+                <div>
+
+                    <span class="detail-section-label">
+                        Classification Result
+                    </span>
+
+                    <h2>
+                        {{ predicted_class }}
+                    </h2>
+
+                </div>
+
+
+                <div class="detail-confidence-value">
+
+                    <span>Confidence</span>
+
+                    <strong>
+                        {{ confidence|floatformat:2 }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONFIDENCE BAR -->
+
+            <div class="detail-confidence-track">
+
+                <div
+                    class="detail-confidence-fill"
+                    style="width: {{ confidence }}%;"
+                ></div>
+
+            </div>
+
+
+            <!-- RECORD INFORMATION -->
+
+            <div class="detail-meta-grid">
+
+                <div class="detail-meta-item">
+
+                    <span>Record ID</span>
+
+                    <strong>
+                        #{{ prediction.id }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-meta-item">
+
+                    <span>Analysis Date</span>
+
+                    <strong>
+                        {{ prediction.created_at|date:"M d, Y" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-meta-item">
+
+                    <span>Analysis Time</span>
+
+                    <strong>
+                        {{ prediction.created_at|date:"h:i A" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-meta-item">
+
+                    <span>XAI Status</span>
+
+                    {% if prediction.scorecam_image %}
+
+                        <strong class="detail-success-text">
+                            Score-CAM Available
+                        </strong>
+
+                    {% else %}
+
+                        <strong class="detail-muted-text">
+                            Not Available
+                        </strong>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CLASS PROBABILITIES
+        ================================================== -->
+
+        <div class="detail-probability-card">
+
+            <div class="detail-card-heading">
+
+                <span class="detail-section-label">
+                    Model Output
+                </span>
+
+                <h2>
+                    Class Probabilities
+                </h2>
+
+                <p>
+                    Probability distribution produced by
+                    BrainGAN-SRNet for this MRI analysis.
+                </p>
+
+            </div>
+
+
+            <div class="detail-probability-list">
+
+                {% for class_name, probability in probabilities.items %}
+
+                    <div class="detail-probability-item">
+
+                        <div class="detail-probability-heading">
+
+                            <span>
+                                {{ class_name }}
+                            </span>
+
+                            <strong>
+                                {{ probability|floatformat:2 }}%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-probability-track">
+
+                            <div
+                                class="detail-probability-fill"
+                                style="width: {{ probability }}%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SCORE-CAM INFORMATION
+        ================================================== -->
+
+        {% if prediction.scorecam_image %}
+
+        <div class="detail-xai-note">
+
+            <div>
+
+                <strong>
+                    Score-CAM Explainability
+                </strong>
+
+                <p>
+                    The Score-CAM visualization highlights
+                    image regions that contributed to the
+                    model's classification output. It should
+                    be interpreted as an explainability aid
+                    rather than a tumor segmentation map.
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             RESEARCH NOTICE
+        ================================================== -->
+
+        <div class="detail-research-notice">
+
+            <strong>
+                Research and Educational Use
+            </strong>
+
+            <p>
+                BrainGAN-SRNet is intended for research and
+                educational purposes and is not a substitute
+                for professional medical diagnosis.
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTION BUTTONS
+        ================================================== -->
+
+        <div class="detail-actions">
+
+            <a
+                href="{% url 'history' %}"
+                class="secondary-button"
+            >
+                Back to History
+            </a>
+
+
+            <a
+                href="{% url 'predict' %}"
+                class="primary-button"
+            >
+                Analyze Another MRI
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

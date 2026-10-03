@@ -27,3 +27,24 @@ media/
 # Logs
 *.log
 # Trained ML model
+.env
+
+# Environment / secrets
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Local database
+db.sqlite3
+
+# macOS
+.DS_Store
+
+# Generated test outputs
+test_images/
+
+# Local testing scripts
+test_onnx.py
+test_xai.py

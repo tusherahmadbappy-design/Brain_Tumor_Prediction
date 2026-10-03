@@ -1,19 +1,27 @@
 import base64
 import io
+import uuid
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.core.files.base import ContentFile
+from django.shortcuts import render, redirect, get_object_or_404
+
 from PIL import Image, UnidentifiedImageError
 
 from .models import Prediction
-from .forms import MRIUploadForm
+from .forms import MRIUploadForm, ProfileEditForm
 
+from allauth.account.views import PasswordChangeView
+from django.urls import reverse_lazy
 
+class CustomPasswordChangeView(PasswordChangeView):
+    success_url = reverse_lazy("profile")
 # =========================================================
 # HOME PAGE
 # =========================================================
 
 def home(request):
+
     return render(
         request,
         "predictor/home.html"
@@ -24,6 +32,7 @@ def home(request):
 # MRI PREDICTION PAGE
 # =========================================================
 
+@login_required
 def predict(request):
 
     if request.method == "POST":
@@ -174,6 +183,7 @@ def predict(request):
             # =================================================
 
             scorecam_base64 = None
+            scorecam_saved_file = None
             xai_generated = False
 
             try:
@@ -208,11 +218,39 @@ def predict(request):
                     )
                 )
 
+                # ---------------------------------------------
+                # SCORE-CAM -> BASE64
+                # Used for immediate result page.
+                # ---------------------------------------------
+
                 scorecam_base64 = (
                     image_to_base64(
                         scorecam_overlay
                     )
                 )
+
+                # ---------------------------------------------
+                # SCORE-CAM -> SAVED IMAGE
+                # Used for prediction history/detail page.
+                # ---------------------------------------------
+
+                scorecam_buffer = io.BytesIO()
+
+                scorecam_overlay.save(
+                    scorecam_buffer,
+                    format="PNG",
+                    optimize=True
+                )
+
+                scorecam_saved_file = ContentFile(
+                    scorecam_buffer.getvalue(),
+                    name=(
+                        f"scorecam_"
+                        f"{uuid.uuid4().hex}.png"
+                    )
+                )
+
+                scorecam_buffer.close()
 
                 xai_generated = True
 
@@ -223,9 +261,6 @@ def predict(request):
 
             except Exception as error:
 
-                # Prediction should still work even if
-                # explanation generation fails.
-
                 print(
                     "Score-CAM error:",
                     error,
@@ -233,6 +268,7 @@ def predict(request):
                 )
 
                 scorecam_base64 = None
+                scorecam_saved_file = None
                 xai_generated = False
 
             # =================================================
@@ -251,35 +287,110 @@ def predict(request):
             }
 
             # =================================================
+            # PREPARE ORIGINAL MRI FOR STORAGE
+            # =================================================
+
+            try:
+
+                saved_image_buffer = io.BytesIO()
+
+                image.save(
+                    saved_image_buffer,
+                    format="PNG",
+                    optimize=True
+                )
+
+                saved_image_file = ContentFile(
+                    saved_image_buffer.getvalue(),
+                    name=(
+                        f"mri_"
+                        f"{uuid.uuid4().hex}.png"
+                    )
+                )
+
+                saved_image_buffer.close()
+
+            except Exception as error:
+
+                print(
+                    "MRI storage preparation error:",
+                    error,
+                    flush=True
+                )
+
+                saved_image_file = None
+
+            # =================================================
             # SAVE RESULT
             # =================================================
 
-            prediction_record = Prediction.objects.create(
+            try:
 
-                predicted_class=predicted_class,
+                prediction_record = (
+                    Prediction.objects.create(
 
-                confidence=round(
-                    confidence,
-                    2
-                ),
+                        user=request.user,
 
-                glioma_probability=probability_percent.get(
-                    "Glioma",
-                    0
-                ),
+                        # Original MRI
+                        image=saved_image_file,
 
-                meningioma_probability=probability_percent.get(
-                    "Meningioma",
-                    0
-                ),
+                        # Historical Score-CAM
+                        scorecam_image=scorecam_saved_file,
 
-                pituitary_probability=probability_percent.get(
-                    "Pituitary",
-                    0
-                ),
+                        predicted_class=predicted_class,
 
-                xai_generated=xai_generated
-            )
+                        confidence=round(
+                            confidence,
+                            2
+                        ),
+
+                        glioma_probability=(
+                            probability_percent.get(
+                                "Glioma",
+                                0
+                            )
+                        ),
+
+                        meningioma_probability=(
+                            probability_percent.get(
+                                "Meningioma",
+                                0
+                            )
+                        ),
+
+                        pituitary_probability=(
+                            probability_percent.get(
+                                "Pituitary",
+                                0
+                            )
+                        ),
+
+                        xai_generated=xai_generated
+                    )
+                )
+
+            except Exception as error:
+
+                print(
+                    "Database save error:",
+                    error,
+                    flush=True
+                )
+
+                form.add_error(
+                    None,
+                    "The prediction was completed, but "
+                    "the result could not be saved. "
+                    "Please try again."
+                )
+
+                return render(
+                    request,
+                    "predictor/predict.html",
+                    {
+                        "form": form
+                    }
+                )
 
             # =================================================
             # RESULT CONTEXT
@@ -305,15 +416,13 @@ def predict(request):
                 "original_image":
                     original_base64,
 
-                # New correct name
                 "scorecam_image":
                     scorecam_base64,
 
                 "xai_generated":
                     xai_generated,
 
-                # Temporary backward compatibility with
-                # existing result.html.
+                # Compatibility with older result template
                 "gradcam_image":
                     scorecam_base64,
             }
@@ -370,8 +479,12 @@ def history(request):
 
     predictions = (
         Prediction.objects
-        .all()
-        .order_by("-created_at")
+        .filter(
+            user=request.user
+        )
+        .order_by(
+            "-created_at"
+        )
     )
 
     return render(
@@ -380,5 +493,189 @@ def history(request):
         {
             "predictions": predictions
         }
+    )
+
+
+# =========================================================
+# PREDICTION DETAIL
+# =========================================================
+
+@login_required
+def prediction_detail(
+    request,
+    prediction_id
+):
+
+    prediction = get_object_or_404(
+        Prediction,
+        id=prediction_id,
+        user=request.user
+    )
+
+    probabilities = {
+        "Glioma":
+            prediction.glioma_probability,
+
+        "Meningioma":
+            prediction.meningioma_probability,
+
+        "Pituitary":
+            prediction.pituitary_probability,
+    }
+
+    context = {
+
+        "prediction":
+            prediction,
+
+        "predicted_class":
+            prediction.predicted_class,
+
+        "confidence":
+            prediction.confidence,
+
+        "probabilities":
+            probabilities,
+
+        "xai_generated":
+            prediction.xai_generated,
+    }
+
+    return render(
+        request,
+        "predictor/prediction_detail.html",
+        context
+    )
+
+
+# =========================================================
+# USER PROFILE
+# =========================================================
+
+@login_required
+def profile(request):
+
+    predictions = (
+        Prediction.objects
+        .filter(
+            user=request.user
+        )
+        .order_by(
+            "-created_at"
+        )
+    )
+
+    return render(
+        request,
+        "predictor/profile.html",
+        {
+            "predictions": predictions
+        }
+    )
+
+
+# =========================================================
+# EDIT PROFILE
+# =========================================================
+
+@login_required
+def edit_profile(request):
+
+    if request.method == "POST":
+
+        form = ProfileEditForm(
+            request.POST,
+            instance=request.user
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "profile"
+            )
+
+    else:
+
+        form = ProfileEditForm(
+            instance=request.user
+        )
+
+    return render(
+        request,
+        "predictor/edit_profile.html",
+        {
+            "form": form
+        }
+    )
+
+
+# =========================================================
+# DELETE PREDICTION
+# =========================================================
+
+@login_required
+def delete_prediction(
+    request,
+    prediction_id
+):
+
+    prediction = get_object_or_404(
+        Prediction,
+        id=prediction_id,
+        user=request.user
+    )
+
+    if request.method == "POST":
+
+        # ---------------------------------------------
+        # DELETE ORIGINAL MRI
+        # ---------------------------------------------
+
+        if prediction.image:
+
+            try:
+
+                prediction.image.delete(
+                    save=False
+                )
+
+            except Exception as error:
+
+                print(
+                    "MRI image deletion error:",
+                    error,
+                    flush=True
+                )
+
+        # ---------------------------------------------
+        # DELETE SCORE-CAM IMAGE
+        # ---------------------------------------------
+
+        if prediction.scorecam_image:
+
+            try:
+
+                prediction.scorecam_image.delete(
+                    save=False
+                )
+
+            except Exception as error:
+
+                print(
+                    "Score-CAM image deletion error:",
+                    error,
+                    flush=True
+                )
+
+        # ---------------------------------------------
+        # DELETE DATABASE RECORD
+        # ---------------------------------------------
+
+        prediction.delete()
+
+    return redirect(
+        "history"
     )
 
