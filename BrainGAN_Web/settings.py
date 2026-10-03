@@ -331,6 +331,7 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 
 EMAIL_USE_TLS = True
+EMAIL_TIMEOUT = 15
 
 
 # Loaded securely from .env / Render environment variables
